@@ -14,40 +14,32 @@ ordered pair in a dictionary.
 August 2015
 """
 
+######################
+### install necessary modules
+######################
 
-### necessary modules
 import os
 from ciscoconfparse import CiscoConfParse
 import pprint
 
-
-### Enter your TFTP server path here
+# Enter your TFTP server path here
 tftp_path = '/var/lib/tftpboot/'
 
 
-### record all files in the TFTP as inventory  -- this is for debugging purposes
-inventory = []
-
-for filename in os.listdir(tftp_path):
-	inventory.append(filename)
-		
-print("\n\n This is here for debugging purposes:\n")   # This is for debugging purposes
-pprint.pprint(inventory)
-
-print("End Debugging for filename collection\n\n")
-
+#######################
 ### Begin parsing through configurations
+#######################
 
 #create empty dictionary
 testdict = {}
 
-#work out of the TFTP server directory
+#change working directory to TFTP server location
 os.chdir(tftp_path)
 
-#look in each file for the parent
+#look in each file for the parent's stanza text
 for filename in os.listdir(tftp_path):
 	parse = CiscoConfParse(filename)
-	line_con = parse.find_children("line con")   # this is the "parent" you are looking for
+	line_con = parse.find_children("line con 0")   # this is the "parent" text you are looking for
 	testdict[filename] = line_con
 
 pprint.pprint(testdict)

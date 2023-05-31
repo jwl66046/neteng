@@ -1,0 +1,264 @@
+Q: I need configurations written for 3 Cisco IOS-XR routers with iBGP sessions between them
+
+Sure! I can provide you with an example configuration for three Cisco IOS-XR routers with iBGP sessions between them. Here's a basic configuration template for each router:
+
+**Router 1:**
+```
+hostname Router1
+!
+interface GigabitEthernet0/0/0/1
+  description Connection to Router2
+  ipv4 address 10.0.0.1 255.255.255.0
+!
+router bgp 65000
+  router-id 1.1.1.1
+  address-family ipv4 unicast
+    neighbor 10.0.0.2
+      remote-as 65000
+      update-source GigabitEthernet0/0/0/1
+      address-family ipv4 unicast
+!
+```
+
+**Router 2:**
+```
+hostname Router2
+!
+interface GigabitEthernet0/0/0/1
+  description Connection to Router1
+  ipv4 address 10.0.0.2 255.255.255.0
+!
+interface GigabitEthernet0/0/0/2
+  description Connection to Router3
+  ipv4 address 10.0.1.1 255.255.255.0
+!
+router bgp 65000
+  router-id 2.2.2.2
+  address-family ipv4 unicast
+    neighbor 10.0.0.1
+      remote-as 65000
+      update-source GigabitEthernet0/0/0/1
+      address-family ipv4 unicast
+    neighbor 10.0.1.2
+      remote-as 65000
+      update-source GigabitEthernet0/0/0/2
+      address-family ipv4 unicast
+!
+```
+
+**Router 3:**
+```
+hostname Router3
+!
+interface GigabitEthernet0/0/0/1
+  description Connection to Router2
+  ipv4 address 10.0.1.2 255.255.255.0
+!
+router bgp 65000
+  router-id 3.3.3.3
+  address-family ipv4 unicast
+    neighbor 10.0.1.1
+      remote-as 65000
+      update-source GigabitEthernet0/0/0/1
+      address-family ipv4 unicast
+!
+
+
+```
+
+In the above configuration:
+
+- Each router is assigned a unique hostname.
+- The interfaces connecting the routers are configured with appropriate IP addresses.
+- BGP is configured on each router with the same AS number (65000) and router IDs.
+- The `neighbor` command is used to establish the iBGP sessions between the routers.
+- The `update-source` command specifies the interface to use for BGP updates.
+
+Please note that this is a basic template, and you may need to modify it according to your specific network requirements and addressing scheme. Also, make sure to adjust the IP addresses and interface names based on your network topology.
+
+
+Q: Please add MPLS configuration to the above
+
+Certainly! Here's an updated configuration that includes MPLS configuration for the three routers:
+
+**Router 1:**
+```
+hostname Router1
+!
+mpls
+!
+interface GigabitEthernet0/0/0/1
+  description Connection to Router2
+  ipv4 address 10.0.0.1 255.255.255.0
+  mpls ip
+!
+router bgp 65000
+  router-id 1.1.1.1
+  address-family ipv4 unicast
+    neighbor 10.0.0.2
+      remote-as 65000
+      update-source GigabitEthernet0/0/0/1
+      address-family ipv4 unicast
+!
+```
+
+**Router 2:**
+```
+hostname Router2
+!
+mpls
+!
+interface GigabitEthernet0/0/0/1
+  description Connection to Router1
+  ipv4 address 10.0.0.2 255.255.255.0
+  mpls ip
+!
+interface GigabitEthernet0/0/0/2
+  description Connection to Router3
+  ipv4 address 10.0.1.1 255.255.255.0
+  mpls ip
+!
+router bgp 65000
+  router-id 2.2.2.2
+  address-family ipv4 unicast
+    neighbor 10.0.0.1
+      remote-as 65000
+      update-source GigabitEthernet0/0/0/1
+      address-family ipv4 unicast
+    neighbor 10.0.1.2
+      remote-as 65000
+      update-source GigabitEthernet0/0/0/2
+      address-family ipv4 unicast
+!
+```
+
+**Router 3:**
+```
+hostname Router3
+!
+mpls
+!
+interface GigabitEthernet0/0/0/1
+  description Connection to Router2
+  ipv4 address 10.0.1.2 255.255.255.0
+  mpls ip
+!
+router bgp 65000
+  router-id 3.3.3.3
+  address-family ipv4 unicast
+    neighbor 10.0.1.1
+      remote-as 65000
+      update-source GigabitEthernet0/0/0/1
+      address-family ipv4 unicast
+!
+```
+
+In the updated configuration:
+
+- The `mpls` command enables MPLS on each router.
+- The `mpls ip` command enables MPLS forwarding on the interface.
+- MPLS is now enabled on all interfaces connecting the routers.
+
+Make sure to adjust the configuration based on your network requirements and interface names.
+
+
+Q:  Connect all 3 of the routers
+
+To connect all three routers, you can establish a full mesh of MPLS L3VPN (Layer 3 Virtual Private Network) connections between them. Each router will have a direct MPLS L3VPN connection to the other two routers. Here's an updated configuration for each router:
+
+**Router 1:**
+```
+hostname Router1
+!
+mpls
+!
+interface GigabitEthernet0/0/0/1
+  description Connection to Router2
+  ipv4 address 10.0.0.1 255.255.255.0
+  mpls ip
+!
+interface GigabitEthernet0/0/0/2
+  description Connection to Router3
+  ipv4 address 10.0.1.1 255.255.255.0
+  mpls ip
+!
+router bgp 65000
+  router-id 1.1.1.1
+  address-family vpnv4 unicast
+    neighbor 10.0.0.2
+      remote-as 65000
+      update-source GigabitEthernet0/0/0/1
+      address-family ipv4 unicast
+    neighbor 10.0.1.2
+      remote-as 65000
+      update-source GigabitEthernet0/0/0/2
+      address-family ipv4 unicast
+!
+```
+
+**Router 2:**
+```
+hostname Router2
+!
+mpls
+!
+interface GigabitEthernet0/0/0/1
+  description Connection to Router1
+  ipv4 address 10.0.0.2 255.255.255.0
+  mpls ip
+!
+interface GigabitEthernet0/0/0/2
+  description Connection to Router3
+  ipv4 address 10.0.2.1 255.255.255.0
+  mpls ip
+!
+router bgp 65000
+  router-id 2.2.2.2
+  address-family vpnv4 unicast
+    neighbor 10.0.0.1
+      remote-as 65000
+      update-source GigabitEthernet0/0/0/1
+      address-family ipv4 unicast
+    neighbor 10.0.2.2
+      remote-as 65000
+      update-source GigabitEthernet0/0/0/2
+      address-family ipv4 unicast
+!
+```
+
+**Router 3:**
+```
+hostname Router3
+!
+mpls
+!
+interface GigabitEthernet0/0/0/1
+  description Connection to Router1
+  ipv4 address 10.0.1.2 255.255.255.0
+  mpls ip
+!
+interface GigabitEthernet0/0/0/2
+  description Connection to Router2
+  ipv4 address 10.0.2.2 255.255.255.0
+  mpls ip
+!
+router bgp 65000
+  router-id 3.3.3.3
+  address-family vpnv4 unicast
+    neighbor 10.0.1.1
+      remote-as 65000
+      update-source GigabitEthernet0/0/0/1
+      address-family ipv4 unicast
+    neighbor 10.0.2.1
+      remote-as 65000
+      update-source GigabitEthernet0/0/0/2
+      address-family ipv4 unicast
+!
+```
+
+In the updated configuration:
+
+- Each router now has an additional interface with a unique subnet to connect to the third router.
+- The `address-family vpnv4 unicast` command is added to enable MPLS L3VPN functionality.
+- Each router
+
